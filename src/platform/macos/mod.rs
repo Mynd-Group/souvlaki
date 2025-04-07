@@ -94,9 +94,9 @@ unsafe fn set_playback_status(playback: MediaPlayback) {
 
     #[cfg(target_os = "ios")] {
         let rate = match playback {
-            MediaPlayback::Stopped => 0.0,
-            MediaPlayback::Paused { .. } => 0.0,
-            MediaPlayback::Playing { .. } => 1.0,
+            MediaPlayback::Stopped => 0,
+            MediaPlayback::Paused { .. } => 0,
+            MediaPlayback::Playing { .. } => 1,
         };
 
         let media_center: id = msg_send!(class!(MPNowPlayingInfoCenter), defaultCenter);
