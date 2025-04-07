@@ -92,17 +92,18 @@ unsafe fn set_playback_status(playback: MediaPlayback) {
     let _: () = msg_send!(media_center, setPlaybackState: state);
 
     let rate = match playback {
-        MediaPlayback::Stopped => 0.0,
-        MediaPlayback::Paused { .. } => 0.0,
-        MediaPlayback::Playing { .. } => 1.0,
+        MediaPlayback::Stopped => 0_f32,
+        MediaPlayback::Paused { .. } => 0_f32,
+        MediaPlayback::Playing { .. } => 1_f32,
     };
 
-    let now_playing: id = msg_send!(class!(NSMutableDictionary), dictionary);
     let prev_now_playing: id = msg_send!(media_center, nowPlayingInfo);
-    let _: () = msg_send!(now_playing, addEntriesFromDictionary: prev_now_playing);
-    let _: () = msg_send!(now_playing, setObject: ns_number(rate)
+    let now_playing: id = msg_send!(class!(NSMutableDictionary), dictionaryWithDictionary: prev_now_playing);
+    let rate: id = msg_send!(class!(NSNumber), numberWithFloat: rate);
+    let default_rate: id = msg_send!(class!(NSNumber), numberWithFloat: rate);
+    let _: () = msg_send!(now_playing, setObject: rate
                                         forKey: MPNowPlayingInfoPropertyPlaybackRate);
-    let _: () = msg_send!(now_playing, setObject: ns_number(rate)
+    let _: () = msg_send!(now_playing, setObject: default_rate
                                         forKey: MPNowPlayingInfoPropertyDefaultPlaybackRate);
     let _: () = msg_send!(media_center, setNowPlayingInfo: now_playing);
 
