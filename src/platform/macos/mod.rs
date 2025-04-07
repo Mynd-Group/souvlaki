@@ -80,16 +80,36 @@ extern "C" {
     static MPMediaItemPropertyArtwork: id; // NSString
     static MPMediaItemPropertyPlaybackDuration: id; // NSString
     static MPNowPlayingInfoPropertyElapsedPlaybackTime: id; // NSString
+    static MPNowPlayingInfoPropertyPlaybackRate: id; // NSNumber
 }
 
 unsafe fn set_playback_status(playback: MediaPlayback) {
-    let media_center: id = msg_send!(class!(MPNowPlayingInfoCenter), defaultCenter);
-    let state = match playback {
-        MediaPlayback::Stopped => MPNowPlayingPlaybackStateStopped,
-        MediaPlayback::Paused { .. } => MPNowPlayingPlaybackStatePaused,
-        MediaPlayback::Playing { .. } => MPNowPlayingPlaybackStatePlaying,
-    };
-    let _: () = msg_send!(media_center, setPlaybackState: state);
+    #[cfg(target_os = "macos")] {
+        let media_center: id = msg_send!(class!(MPNowPlayingInfoCenter), defaultCenter);
+        let state = match playback {
+            MediaPlayback::Stopped => MPNowPlayingPlaybackStateStopped,
+            MediaPlayback::Paused { .. } => MPNowPlayingPlaybackStatePaused,
+            MediaPlayback::Playing { .. } => MPNowPlayingPlaybackStatePlaying,
+        };
+        let _: () = msg_send!(media_center, setPlaybackState: state);
+    }
+
+    #[cfg(target_os = "ios")] {
+        let rate = match playback {
+            MediaPlayback::Stopped => 0.0,
+            MediaPlayback::Paused { .. } => 0.0,
+            MediaPlayback::Playing { .. } => 1.0,
+        };
+
+        let media_center: id = msg_send!(class!(MPNowPlayingInfoCenter), defaultCenter);
+        let now_playing: id = msg_send!(class!(NSMutableDictionary), dictionary);
+        let prev_now_playing: id = msg_send!(media_center, nowPlayingInfo);
+        let _: () = msg_send!(now_playing, addEntriesFromDictionary: prev_now_playing);
+        let _: () = msg_send!(now_playing, setObject: ns_number(rate)
+                                            forKey: MPNowPlayingInfoPropertyPlaybackRate);
+        let _: () = msg_send!(media_center, setNowPlayingInfo: now_playing);
+    }
+
     if let MediaPlayback::Paused {
         progress: Some(progress),
     }
