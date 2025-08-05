@@ -151,6 +151,11 @@ unsafe fn set_playback_metadata(metadata: MediaMetadata) {
 
 unsafe fn load_and_set_playback_artwork(url: String, for_counter: usize) {
     let (image, size) = load_image_from_url(&url);
+
+    // if image == nil {
+    //     return;
+    // }
+
     let artwork = mp_artwork(image, size);
     if GLOBAL_METADATA_COUNTER.load(Ordering::SeqCst) == for_counter {
         set_playback_artwork(artwork);
@@ -307,7 +312,8 @@ unsafe fn ns_url(value: &str) -> id {
 
 #[cfg(target_os = "ios")]
 unsafe fn load_image_from_url(url: &str) -> (id, CGSize) {
-    let path = url.trim_start_matches("file://");
+    // concat wrong path for dummy testing
+    let path = format!("/Users/sjsdhsahj/Desktop/{}", url.trim_start_matches("file://"));
 
     let file_exists = fs::metadata(path).is_ok();
     if !file_exists {
