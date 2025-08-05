@@ -152,9 +152,9 @@ unsafe fn set_playback_metadata(metadata: MediaMetadata) {
 unsafe fn load_and_set_playback_artwork(url: String, for_counter: usize) {
     let (image, size) = load_image_from_url(&url);
 
-    // if image == nil {
-    //     return;
-    // }
+    if image == nil {
+        return;
+    }
 
     let artwork = mp_artwork(image, size);
     if GLOBAL_METADATA_COUNTER.load(Ordering::SeqCst) == for_counter {
