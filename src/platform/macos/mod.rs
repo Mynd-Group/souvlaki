@@ -315,7 +315,7 @@ unsafe fn load_image_from_url(url: &str) -> (id, CGSize) {
     // concat wrong path for dummy testing
     let path = format!("/Users/sjsdhsahj/Desktop/{}", url.trim_start_matches("file://").to_string());
 
-    let file_exists = fs::metadata(path).is_ok();
+    let file_exists = fs::metadata(path.clone()).is_ok();
     if !file_exists {
         return (nil, CGSize::new(0.0, 0.0));
     }
