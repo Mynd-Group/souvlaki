@@ -312,15 +312,14 @@ unsafe fn ns_url(value: &str) -> id {
 
 #[cfg(target_os = "ios")]
 unsafe fn load_image_from_url(url: &str) -> (id, CGSize) {
-    // concat wrong path for dummy testing
-    let path = format!("/Users/sjsdhsahj/Desktop/{}", url.trim_start_matches("file://").to_string());
+    let path = url.trim_start_matches("file://");
 
-    let file_exists = fs::metadata(path.clone()).is_ok();
+    let file_exists = fs::metadata(path).is_ok();
     if !file_exists {
         return (nil, CGSize::new(0.0, 0.0));
     }
 
-    let image: id = msg_send!(class!(UIImage), imageWithContentsOfFile: ns_string(path.as_str()));
+    let image: id = msg_send!(class!(UIImage), imageWithContentsOfFile: ns_string(path));
     if image == nil {
         return (nil, CGSize::new(0.0, 0.0));
     }
