@@ -339,6 +339,11 @@ unsafe fn load_image_from_url(url: &str) -> (id, CGSize) {
     let url = ns_url(url);
     let image: id = msg_send!(class!(NSImage), alloc);
     let image: id = msg_send!(image, initWithContentsOfURL: url);
+
+    if image == nil {
+        return (nil, CGSize::new(0.0, 0.0));
+    }
+
     let size: CGSize = msg_send!(image, size);
     (image, CGSize::new(size.width, size.height))
 }
